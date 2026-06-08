@@ -10,6 +10,7 @@ import winston from "winston";
 import morgan from "morgan";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";  // Add this line with your other imports
+import job from "./lib/cron.js"; // Import the cron job
 
 
 
@@ -451,6 +452,9 @@ const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     logger.info("Connected to MongoDB");
+
+
+    job.start(); // Start the cron job after successful DB connection
     app.listen(PORT, () => {
       logger.info(`Backend running on http://localhost:${PORT}`);
     });
