@@ -57,10 +57,16 @@ const logger = winston.createLogger({
 // Middleware for logging HTTP requests using Morgan
 app.use(morgan("combined", { stream: { write: (msg) => logger.info(msg.trim()) } }));
 
+
+// Dynamic CORS setup
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(",") 
+  : ["http://localhost:3000"];
+
 // Middleware setup
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:3000", // Allow requests only from the frontend
+  origin: allowedOrigins, // Allow requests only from the frontend
   credentials: true, // Enable cookies (session cookies)
 }));
 
@@ -179,13 +185,22 @@ app.get(
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
-    res.redirect(`http://localhost:3000?token=${token}`);
+    // Dynamic redirect destination
+    const frontendBase = process.env.FRONTEND_REDIRECT_URL || "http://localhost:3000";
+    res.redirect(`${frontendBase}?token=${token}`);
+    // res.redirect(`http://localhost:3000?token=${token}`);
   }
 );
 
 // Add this failure route
+// app.get("/login-failed", (req, res) => {
+//   res.redirect("http://localhost:3000?error=login_failed");
+// });
+
+// Dynamic failure redirect
 app.get("/login-failed", (req, res) => {
-  res.redirect("http://localhost:3000?error=login_failed");
+  const frontendBase = process.env.FRONTEND_REDIRECT_URL || "http://localhost:3000";
+  res.redirect(`${frontendBase}?error=login_failed`);
 });
 
 
