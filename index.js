@@ -87,10 +87,14 @@ app.use(cors({
 // );
 passport.use(
   new GoogleStrategy(
-    {
+  {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      // Fallback to localhost if the variable isn't set (local development)
+      callbackURL: process.env.NODE_ENV === "production" 
+      // note render handles the callback and loggic, you don't need to add a node_env in your environmental variables, so we just need to point to it. The frontend will handle the token in the query params and redirect as needed.
+        ? "https://pamasbackend-qhu8.onrender.com/auth/google/callback"
+        : "http://localhost:5000/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
