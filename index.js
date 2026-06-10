@@ -186,7 +186,7 @@ app.get(
       { expiresIn: '7d' }
     );
     // Dynamic redirect destination
-    const frontendBase = process.env.FRONTEND_REDIRECT_URL;
+    const frontendBase = process.env.FRONTEND_URL;
     //  || "http://localhost:3000";
     res.redirect(`${frontendBase}?token=${token}`);
     // res.redirect(`http://localhost:3000?token=${token}`);
@@ -200,7 +200,7 @@ app.get(
 
 // Dynamic failure redirect
 app.get("/login-failed", (req, res) => {
-  const frontendBase = process.env.FRONTEND_REDIRECT_URL;
+  const frontendBase = process.env.FRONTEND_URL;
   //  || "http://localhost:3000";
   res.redirect(`${frontendBase}?error=login_failed`);
 });
