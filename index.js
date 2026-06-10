@@ -60,9 +60,7 @@ app.use(morgan("combined", { stream: { write: (msg) => logger.info(msg.trim()) }
 
 
 // Dynamic CORS setup
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(",") 
-  : ["http://localhost:3000"];
+const allowedOrigins = process.env.FRONTEND_URL;
 
 // Middleware setup
 app.use(express.json());
@@ -91,10 +89,7 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       // Fallback to localhost if the variable isn't set (local development)
-      callbackURL: process.env.NODE_ENV === "production" 
-      // note render handles the callback and loggic, you don't need to add a node_env in your environmental variables, so we just need to point to it. The frontend will handle the token in the query params and redirect as needed.
-        ? "https://pamasbackend-qhu8.onrender.com/auth/google/callback"
-        : "http://localhost:5000/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -191,7 +186,8 @@ app.get(
       { expiresIn: '7d' }
     );
     // Dynamic redirect destination
-    const frontendBase = process.env.FRONTEND_REDIRECT_URL || "http://localhost:3000";
+    const frontendBase = process.env.FRONTEND_REDIRECT_URL;
+    //  || "http://localhost:3000";
     res.redirect(`${frontendBase}?token=${token}`);
     // res.redirect(`http://localhost:3000?token=${token}`);
   }
@@ -204,7 +200,8 @@ app.get(
 
 // Dynamic failure redirect
 app.get("/login-failed", (req, res) => {
-  const frontendBase = process.env.FRONTEND_REDIRECT_URL || "http://localhost:3000";
+  const frontendBase = process.env.FRONTEND_REDIRECT_URL;
+  //  || "http://localhost:3000";
   res.redirect(`${frontendBase}?error=login_failed`);
 });
 
