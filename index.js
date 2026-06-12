@@ -11,6 +11,7 @@ import morgan from "morgan";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";  // Add this line with your other imports
 import job from "./lib/cron.js"; // Import the cron job
+import MongoStore from "connect-mongo"; // 👈 Add this here
 
 
 
@@ -150,11 +151,13 @@ passport.deserializeUser(async (id, done) => {
 // passport.deserializeUser((user, done) => done(null, user));
 
 // Session configuration
+// Session configuration
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }) // 👈 Add this line
   })
 );
 
@@ -400,12 +403,17 @@ Text: ${text}`
 };
 
 // Summarize route for AI text generation
-app.post("/summarize", async (req, res) => {
+app.post("/summarize", verifyToken, async (req, res) => {
   const { text, mode } = req.body;
 
   if (!text) {
     return res.status(400).json({ error: "No text provided" });
   }
+
+   if (text.length > 5000) {
+    return res.status(400).json({ error: "Text too long. Max 5000 characters." });
+  }
+
 
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
